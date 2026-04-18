@@ -1,17 +1,17 @@
 # 🎯 Cross-Sell Intelligence Dashboard
 
-A Streamlit-powered web application that identifies cross-selling opportunities by analyzing sales transactions, product metadata, and customer data.
+A Streamlit web app that identifies cross-selling opportunities across a large customer and product base using hierarchical gap analysis and collaborative filtering.
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
 
 ---
 
-## 🚀 Deploy to Streamlit Cloud (1-click)
+## 🚀 Deploy to Streamlit Cloud
 
 1. **Fork this repo** to your GitHub account
 2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. Select your forked repo, branch `main`, and set main file path to `app.py`
-4. Click **Deploy** — it'll be live in ~2 minutes
+3. Select your repo, branch `main`, main file: `app.py`
+4. Click **Deploy**
 
 ---
 
@@ -30,122 +30,91 @@ streamlit run app.py
 
 ```
 cross-sell-intelligence/
-├── app.py                        # Main Streamlit application
+├── app.py                        # Streamlit dashboard
 ├── requirements.txt
-├── .streamlit/
-│   └── config.toml               # Dark theme configuration
+├── .streamlit/config.toml        # Dark theme
 ├── utils/
-│   ├── __init__.py
-│   ├── engine.py                 # Core recommendation engine (ML logic)
-│   ├── data_loader.py            # CSV/Excel ingestion & validation
+│   ├── engine.py                 # ML recommendation engine
+│   ├── data_loader.py            # File ingestion & validation
 │   └── charts.py                 # Plotly chart builders
-└── data/
-    └── sample/
-        ├── transactions.csv      # Sample transaction data
-        ├── products.csv          # Sample product metadata
-        └── customers.csv         # Sample customer metadata
+└── data/sample/
+    ├── Sales.xlsx
+    ├── Products.xlsx
+    └── Customers.xlsx
 ```
 
 ---
 
-## 📊 Input Data Format
+## 📊 Required Column Names
 
-### Transactions (`transactions.csv` / `.xlsx`)
-| Column | Type | Description |
-|--------|------|-------------|
-| `CustomerID` | string | Unique customer identifier |
-| `ProductID` | string | Unique product identifier |
-| `Quantity` | numeric | Units purchased |
-| `UnitPrice` | numeric | Price per unit |
-| `TransactionDate` | date | Optional, for time analysis |
+### Sales.xlsx
+| Column | Description |
+|--------|-------------|
+| `key_source_soldto` | Customer join key |
+| `key_source_material_pl` | Product join key |
+| `Value` | Transaction revenue |
+| `QTY` | Quantity sold |
+| `date` | Transaction date (optional) |
 
-### Products (`products.csv` / `.xlsx`)
-| Column | Type | Description |
-|--------|------|-------------|
-| `ProductID` | string | Unique product identifier |
-| `ProductName` | string | Human-readable product name |
-| `ProductLine` | string | Top-level grouping (e.g. "Fluid Systems") |
-| `ProductGroup` | string | Mid-level grouping (e.g. "Pumps") |
-| `ProductClass` | string | Lowest grouping (e.g. "Centrifugal") |
-| `StandardPrice` | numeric | Optional fallback price |
+### Products.xlsx
+| Column | Description |
+|--------|-------------|
+| `key_source_material_pl` | Product join key |
+| `key_pl` | Product Line (L1 hierarchy) |
+| `keytext_productgroup` | Product Group (L2 hierarchy) |
+| `keytext_productclass` | Product Class (L3 hierarchy) |
+| `division` | Division grouping |
+| `material` | Material name/code |
 
-### Customers (`customers.csv` / `.xlsx`)
-| Column | Type | Description |
-|--------|------|-------------|
-| `CustomerID` | string | Unique customer identifier |
-| `CustomerName` | string | Company/customer name |
-| `Segment` | string | Enterprise / Mid-Market / SMB |
-| `Region` | string | Geographic region |
-| `Industry` | string | Industry vertical |
+### Customers.xlsx
+| Column | Description |
+|--------|-------------|
+| `key_source_soldto` | Customer join key |
+| `soldto` | Customer name |
+| `danfoss_region_2` | Region |
+| `text_country` | Country |
+| `customer_type_2` | Customer type |
+| `sf_primary_segment` | Primary segment |
+| `sf_primary_application` | Primary application |
 
 ---
 
 ## 🧠 Recommendation Engine
 
-### Hierarchical Gap Analysis
-The engine follows a strict priority hierarchy:
+### Level 1 — Product Line Gap (Highest Priority)
+Identifies Product Lines the customer hasn't purchased, where they already buy in the same **Division**. Propensity is weighted by market-wide PL adoption rate.
 
-| Level | Scope | Priority Weight | Description |
-|-------|-------|-----------------|-------------|
-| **L1** | Product Line | 1.00 | Customer owns some products in a line but not others |
-| **L2** | Product Group | 0.65 | Customer owns products in a group but not all |
-| **L3** | Product Class | 0.35 | Customer owns products in a class but not all |
-| **L4** | New Idea (CF) | Dynamic | Collaborative filtering suggests new product lines |
+### Level 4 — New Idea via Collaborative Filtering
+Uses cosine similarity on a customer × Product Line matrix to find similar customers, then suggests Product Lines those customers buy that the target customer doesn't.
 
-### Propensity Score Calculation
+### Revenue Prediction
 ```
-propensity = min(0.95, adoption_rate × priority_weight × 1.5 + 0.05)
+predicted_revenue = avg_revenue_per_PL_transaction × propensity_score
+propensity = min(0.92, adoption_rate × 1.4 + 0.05)   # L1
+propensity = min(0.75, similarity_score × 0.55 + 0.08) # L4
 ```
-Where `adoption_rate` = % of all customers who purchased the product.
-
-### Predicted Revenue
-```
-predicted_revenue = avg_unit_price × avg_quantity × propensity_score
-```
-
-### Collaborative Filtering (Level 4 / "New Idea")
-- Builds a customer-product purchase matrix
-- Computes cosine similarity between customers
-- For each customer, finds top-N most similar customers
-- Suggests products (from entirely new Product Lines) that similar customers buy
-- Scores suggestions by weighted purchase frequency
 
 ---
 
-## 📈 Dashboard Features
+## 📈 Dashboard
 
-### Executive Summary
-- Total projected revenue across all customers
-- Number of customers with identified gaps
-- Total recommendations generated
-- Average propensity score
-
-### Ranked Opportunity List
-- Customers sorted by total predicted revenue opportunity
-- Per-customer: top product, number of recommendations, avg propensity
-
-### Customer Detail View
-- Current product ownership
-- All recommendations with propensity scores and predicted revenue
-- Expandable cards with full recommendation context
-
-### Analytics Suite
-- Revenue opportunity by Region (horizontal bar chart)
-- Revenue split by Customer Segment (donut chart)
-- Revenue by Recommendation Level (bar chart)
-- Propensity score distribution (histogram)
-- Conversion probability vs. Deal size (scatter plot)
-- Top 10 customers by opportunity (bar chart)
-- Customer × Product purchase matrix (heatmap)
+- **Executive Summary** — Total opportunity vs actual YTD revenue + uplift %
+- **Ranked Lead Table** — Customers sorted by predicted revenue opportunity
+- **All Recommendations** — Full list with propensity scores, reasons, and predicted revenue
+- **Analytics** — Region, segment, country, customer type, level, and propensity charts
+- **Customer Detail** — Per-customer owned PLs, recommendations with full context
+- **Raw Data Explorer** — Browse Sales / Products / Customers / Merged data
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Performance Notes
 
-Edit `.streamlit/config.toml` to customize the theme. All chart colors are defined in `utils/charts.py` in the `PALETTE` dictionary.
+- The app analyses the **top N customers by revenue** (configurable in sidebar, default 500)
+- Full 8,493-customer run takes ~60–90 seconds; 500 customers takes ~5–10 seconds
+- The customer × PL matrix is 8,493 × 23 — tractable for real-time Streamlit use
 
 ---
 
 ## 📝 License
 
-MIT — free to use and modify.
+MIT
