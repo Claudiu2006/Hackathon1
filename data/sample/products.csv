@@ -1,0 +1,17 @@
+ProductID,ProductName,ProductLine,ProductGroup,ProductClass,StandardPrice
+P101,Industrial Pump A,Fluid Systems,Pumps,Centrifugal,125.00
+P102,Industrial Pump B,Fluid Systems,Pumps,Submersible,255.00
+P103,Industrial Pump C,Fluid Systems,Pumps,Peristaltic,180.00
+P104,Industrial Pump D,Fluid Systems,Pumps,Diaphragm,210.00
+P201,Control Valve X,Fluid Systems,Valves,Gate,405.00
+P202,Control Valve Y,Fluid Systems,Valves,Ball,315.00
+P203,Control Valve Z,Fluid Systems,Valves,Butterfly,285.00
+P301,Pressure Sensor A,Instrumentation,Sensors,Pressure,88.00
+P302,Temperature Sensor B,Instrumentation,Sensors,Temperature,98.00
+P303,Flow Sensor C,Instrumentation,Sensors,Flow,115.00
+P304,Level Sensor D,Instrumentation,Sensors,Level,135.00
+P401,Motor Drive 1,Power Systems,Drives,Variable Frequency,225.00
+P402,Motor Drive 2,Power Systems,Drives,Servo,195.00
+P403,Motor Drive 3,Power Systems,Drives,Stepper,360.00
+P501,PLC Controller A,Automation,Controllers,PLC,580.00
+P502,HMI Panel B,Automation,Controllers,HMI,720.00

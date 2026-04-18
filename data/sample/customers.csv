@@ -1,0 +1,16 @@
+CustomerID,CustomerName,Segment,Region,Country,AnnualRevenue,Industry
+C001,Acme Manufacturing,Enterprise,North,Denmark,2500000,Manufacturing
+C002,Beta Industries,Mid-Market,South,Germany,850000,Oil & Gas
+C003,Gamma Solutions,SMB,East,Netherlands,320000,Water Treatment
+C004,Delta Corp,Enterprise,West,UK,1800000,Chemicals
+C005,Epsilon Ltd,Mid-Market,North,Sweden,670000,Food & Beverage
+C006,Zeta Systems,SMB,South,Denmark,290000,Pharmaceuticals
+C007,Eta Engineering,Enterprise,East,Germany,3200000,Power Generation
+C008,Theta Works,Mid-Market,West,France,740000,Mining
+C009,Iota Industries,SMB,North,Netherlands,410000,Manufacturing
+C010,Kappa Corp,Enterprise,South,UK,2100000,Oil & Gas
+C011,Lambda Ltd,Mid-Market,East,Sweden,560000,Water Treatment
+C012,Mu Systems,SMB,West,Denmark,380000,Chemicals
+C013,Nu Engineering,Mid-Market,North,Germany,920000,Food & Beverage
+C014,Xi Industries,Enterprise,South,France,1650000,Power Generation
+C015,Omicron Corp,Mid-Market,East,UK,780000,Manufacturing
